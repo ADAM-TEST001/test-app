@@ -1,0 +1,55 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background-color: rgb(60, 60, 60);
+  padding-inline: 2rem;
+  padding-block: 1rem;
+
+  color: rgb(161, 161, 161);
+  font-weight: 500;
+}
+
+.navbar span {
+  font-size: 24px;
+}
+
+.logout {
+  background: red;
+  border: 0;
+  font-weight: 500;
+
+  color: white;
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+.logout:hover {
+  scale: 1.2;
+  cursor: pointer;
+}
+
+.mainContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  row-gap: 2rem;
+  flex-direction: column;
+  height: 50vh;
+}
+
+.mainContainer > span {
+  border: 0;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.editPannel {
+  display: flex;
+  flex-direction: column;
+}
+
+.updateBtn {
+  font-size: 18px;
+}

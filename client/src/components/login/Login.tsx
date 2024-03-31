@@ -1,0 +1,321 @@
+import React, { useEffect, useState } from "react";
+import "./Login.css";
+import { emailRegex, passwordRegex } from "../../utils/Regex";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { jwtDecode } from "jwt-decode";
+import { GoogleLogin } from "@react-oauth/google";
+import { LoginSocialFacebook } from "reactjs-social-login";
+import { FacebookLoginButton } from "react-social-login-buttons";
+
+interface JWTPayload {
+  name: string;
+  email: string;
+}
+
+const Login = () => {
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/home", { replace: true });
+    }
+  }, []);
+
+  console.log(import.meta.env);
+
+  const navigate = useNavigate();
+
+  const [otp, setOtp] = useState<string>("");
+
+  const [otpReceived, setOtpReceived] = useState(false);
+
+  const [otpVerifed, setOtpVerified] = useState(false);
+
+  const [userDetails, setUserDetails] = useState({ email: "", password: "" });
+
+  const [isVerifed, setIsVerified] = useState(true);
+
+  const [isRestPassword, setisRestPassword] = useState(false);
+
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setUserDetails((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleResetPassword = async () => {
+    if (!emailRegex.test(userDetails.email)) {
+      console.log("email is not a valid email");
+      return;
+    }
+
+    if (!passwordRegex.test(userDetails.password)) {
+      console.log("password is not a valid password", userDetails.password);
+      return;
+    }
+
+    const requestBody = {
+      updateType: "password",
+      userDetails,
+    };
+
+    const header = {
+      Authorization: "VIA EMAIL",
+    };
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_BASE_URL}/user/updateDetails`,
+        requestBody,
+        { headers: header }
+      );
+
+      console.log(response);
+
+      setisRestPassword(false);
+      setOtp("");
+      setOtpReceived(false);
+      setOtpVerified(false);
+      toast.success("User updated successfully");
+    } catch (error: any) {
+      toast.success(error.response.data);
+
+      console.log(error);
+    }
+  };
+
+  const handleLogin = async () => {
+    if (!emailRegex.test(userDetails.email)) {
+      console.log("email is not a valid email");
+      return;
+    }
+
+    if (isRestPassword && otpReceived) {
+      try {
+        const response = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/user/verifyOTP`,
+          { otp: otp }
+        );
+
+        console.log(response);
+        setOtpVerified(true);
+        setUserDetails((prev) => ({
+          ...prev,
+          password: "",
+        }));
+
+        toast.success("OTP verified");
+      } catch (error: any) {
+        toast.error(error.response.data.message);
+        console.log(error);
+      }
+
+      return;
+    }
+
+    if (isRestPassword) {
+      try {
+        const response = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/user/resetPassword`,
+          { email: userDetails.email }
+        );
+
+        console.log(response);
+        setOtpReceived(true);
+        toast.success("OTP sent successfully");
+      } catch (error: any) {
+        toast.error(error.message);
+        console.log(error);
+      }
+
+      return;
+    }
+
+    if (!passwordRegex.test(userDetails.password)) {
+      console.log("password is not a valid password", userDetails.password);
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/user/login-user`,
+        { userDetails }
+      );
+      console.log(response);
+
+      navigate("/home");
+
+      localStorage.setItem("token", response.data.token);
+
+      const { name } = jwtDecode<JWTPayload>(localStorage.getItem("token")!);
+
+      toast.success(`Hello ${name}`);
+    } catch (error: any) {
+      console.log(error.response.data.error);
+
+      if (error.response.data.error === "User is not verified") {
+        setIsVerified(false);
+      }
+    }
+  };
+
+  const getVerificationMail = async () => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/user/getVerificationEmail`,
+        { email: userDetails.email }
+      );
+
+      console.log(response.data);
+      toast.success("Verification mail sent");
+
+      setIsVerified(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const resetPassword = async () => {
+    setisRestPassword(true);
+  };
+
+  const handleGoogleLogin = async (e) => {
+    console.log(e);
+
+    interface DecodedData {
+      name: string;
+      email: string;
+    }
+
+    const decodedData: DecodedData = jwtDecode(e.credential);
+
+    const newUser = {
+      email: decodedData.email,
+      name: decodedData.name,
+      password: "Qwerty!123",
+      isAutogenerated: true,
+    };
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/user/register-user`,
+        { userDetails: newUser }
+      );
+
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleFaceBookLogin = async (e) => {
+    const newUser = {
+      email: e.data.email,
+      name: e.data.name,
+      password: "Qwerty!123",
+      isAutogenerated: true,
+    };
+
+    console.log(newUser);
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/user/register-user`,
+        { userDetails: newUser }
+      );
+
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <div className="login-container">
+      <h2>Login</h2>
+
+      {!isRestPassword && <GoogleLogin onSuccess={handleGoogleLogin} />}
+
+      {!isRestPassword && (
+        <LoginSocialFacebook
+          appId="1086880865723734"
+          onResolve={handleFaceBookLogin}
+          onReject={(e) => {
+            console.log(e);
+          }}
+        >
+          <FacebookLoginButton />
+        </LoginSocialFacebook>
+      )}
+
+      <div>
+        <input
+          className="input-field"
+          placeholder="Email"
+          type="email"
+          name="email"
+          value={userDetails.email}
+          onChange={handleInput}
+        />
+        {!otpVerifed && (
+          <input
+            className={!isRestPassword ? "hide" : "input-field"}
+            placeholder="OTP"
+            type="text"
+            name="otp"
+            value={otp}
+            onChange={(e) => {
+              setOtp(e.target.value);
+            }}
+          />
+        )}
+        <input
+          className={isRestPassword && !otpVerifed ? "hide" : "input-field"}
+          placeholder="Password"
+          type="password"
+          name="password"
+          value={userDetails.password}
+          onChange={handleInput}
+        />
+      </div>
+      <button
+        onClick={handleLogin}
+        className={!otpVerifed ? "login-button" : "hide"}
+      >
+        {!otpReceived && isRestPassword
+          ? "Get OTP"
+          : otpReceived && isRestPassword
+          ? "Verify OTP"
+          : "LOGIN"}
+      </button>
+
+      <button
+        onClick={handleResetPassword}
+        className={otpVerifed ? "login-button" : "hide"}
+      >
+        Reset Password
+      </button>
+
+      {!isVerifed && (
+        <div onClick={getVerificationMail}>
+          Click here to get an email to verify your account
+        </div>
+      )}
+
+      <p className={isRestPassword ? "hide" : ""}>
+        Forgot Password? <span onClick={resetPassword}>Reset</span>{" "}
+      </p>
+
+      <p className={isRestPassword ? "hide" : ""}>
+        Don't have an account{" "}
+        <span>
+          <Link to="/signup">Signup</Link>
+        </span>{" "}
+      </p>
+    </div>
+  );
+};
+
+export default Login;
