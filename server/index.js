@@ -21,5 +21,5 @@ app.use("/user", require("./Routes/UserRoutes"));
 app.listen(process.env.PORT, async () => {
     await connect_db();
 
-    console.log("server is up");
+    //console.log("server is up");
 });
