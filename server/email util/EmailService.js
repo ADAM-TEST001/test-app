@@ -64,7 +64,7 @@ const sendVerificationEmail = async (
             text: `Your password is ${additionParameters.password}. Please change your password.`,
         };
     } else {
-        const verficationLink = `http://localhost:5000/user/verify?token=${token}`;
+        const verficationLink = `https://test-app0.onrender.com/user/verify?token=${token}`;
 
         mailOptions = {
             from: "test.adam011@gmail.com",
