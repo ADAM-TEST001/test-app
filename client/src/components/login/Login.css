@@ -1,17 +1,38 @@
 /* Login.css */
 
+/* * {
+  transition: 100ms;
+} */
+
 .login-container {
   max-width: 300px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  row-gap: 1rem;
   align-items: center;
   justify-content: center;
+  /* border: 1px solid #0056b3; */
 }
 
 .login-container div {
+  width: 100%;
+  display: flex;
+}
+
+.login-container div div:first-child {
+  flex: 1;
+}
+
+.login-container div div {
+  font-size: 16px;
+}
+
+.login-container div.inputCont {
   display: flex;
   flex-direction: column;
+  row-gap: 2rem;
+  width: 100%;
 }
 
 h2 {
@@ -19,20 +40,36 @@ h2 {
 }
 
 .input-field {
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  padding: 10px !important;
+  /* margin-bottom: 10px; */
+  height: 50px;
+  box-sizing: border-box;
+
+  /* border-radius: 5px; */
+  border: 0;
+  background-color: rgb(31, 31, 31) !important;
+
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 1px 2px;
+}
+
+.input-field:focus {
+  outline: none;
+  /* background-color: rgb(31, 31, 31); */
 }
 
 .login-button {
   /* width: 100%; */
+
   padding: 10px;
   border-radius: 5px;
   border: none;
   background-color: #007bff;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 1px 2px;
+  margin-bottom: 1rem;
   color: #fff;
   cursor: pointer;
+  height: 50px;
+  width: 100%;
 }
 
 .login-button:hover {
@@ -41,4 +78,42 @@ h2 {
 
 .hide {
   display: none;
+}
+
+.parent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.loginContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+  min-width: 380px;
+}
+
+.loginContainer button,
+input {
+  height: 48px;
+  /* font-size: 32px; */
+}
+
+input {
+  font-size: 16px;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.btn {
+  background-color: rgb(31, 31, 31) !important;
+  width: 100% !important;
+  /* border: 1px solid red !important; */
+  color: white !important;
+}
+
+p {
+  padding: 0;
+  margin: 0;
 }

@@ -1,55 +1,67 @@
+.main {
+  font-family: Arial, sans-serif;
+}
+
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
-  background-color: rgb(60, 60, 60);
-  padding-inline: 2rem;
-  padding-block: 1rem;
-
-  color: rgb(161, 161, 161);
-  font-weight: 500;
-}
-
-.navbar span {
-  font-size: 24px;
+  padding: 1rem;
+  background-color: #333;
+  color: #fff;
 }
 
 .logout {
-  background: red;
-  border: 0;
-  font-weight: 500;
-
-  color: white;
-  padding: 1rem;
-  border-radius: 10px;
-}
-
-.logout:hover {
-  scale: 1.2;
+  padding: 0.5rem 1rem;
+  background-color: #ff5722;
+  border: none;
+  border-radius: 5px;
+  color: #fff;
   cursor: pointer;
 }
 
-.mainContainer {
+.mainCont {
   display: flex;
   justify-content: center;
   align-items: center;
-  row-gap: 2rem;
-  flex-direction: column;
-  height: 50vh;
+  height: calc(100vh - 60px);
 }
 
-.mainContainer > span {
-  border: 0;
-  font-size: 20px;
-  cursor: pointer;
+.card {
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #353535;
+  width: 40vw;
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
 }
 
 .editPannel {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
 }
 
 .updateBtn {
-  font-size: 18px;
+  /* width: 100%; */
+
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #007bff;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 1px 2px;
+  color: #fff;
+  cursor: pointer;
+  height: 50px;
+  transition: all 0.5s;
+
+  width: 100%;
+}
+
+.updateBtn:hover {
+  background-color: #0056b3;
 }

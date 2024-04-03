@@ -6,12 +6,16 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
 import { GoogleLogin } from "@react-oauth/google";
-import { LoginSocialFacebook } from "reactjs-social-login";
-import { FacebookLoginButton } from "react-social-login-buttons";
+import { LoginSocialFacebook, LoginSocialGoogle } from "reactjs-social-login";
+import {
+  FacebookLoginButton,
+  GoogleLoginButton,
+} from "react-social-login-buttons";
 
 interface JWTPayload {
   name: string;
   email: string;
+  exp: string;
 }
 
 const Login = () => {
@@ -21,7 +25,11 @@ const Login = () => {
     }
   }, []);
 
-  console.log(import.meta.env);
+  //console.log(import.meta.env);
+
+  const [showPassword, setshowPassword] = useState(false);
+
+  const [isLoading, setisLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -47,13 +55,21 @@ const Login = () => {
   };
 
   const handleResetPassword = async () => {
+    setisLoading(true);
+
     if (!emailRegex.test(userDetails.email)) {
-      console.log("email is not a valid email");
+      //console.log("email is not a valid email");
+      toast.error("Please enter a valid email");
+      setisLoading(false);
+
       return;
     }
 
     if (!passwordRegex.test(userDetails.password)) {
-      console.log("password is not a valid password", userDetails.password);
+      //console.log("password is not a valid password", userDetails.password);
+      toast.error("Password is not a valid password");
+      setisLoading(false);
+
       return;
     }
 
@@ -72,23 +88,28 @@ const Login = () => {
         { headers: header }
       );
 
-      console.log(response);
+      //console.log(response);
 
       setisRestPassword(false);
       setOtp("");
       setOtpReceived(false);
       setOtpVerified(false);
       toast.success("User updated successfully");
+      setisLoading(false);
     } catch (error: any) {
       toast.success(error.response.data);
+      setisLoading(false);
 
-      console.log(error);
+      //console.log(error);
     }
   };
 
   const handleLogin = async () => {
+    setisLoading(true);
     if (!emailRegex.test(userDetails.email)) {
-      console.log("email is not a valid email");
+      //console.log("email is not a valid email");
+      setisLoading(false);
+      toast.error("Email is not a valid email");
       return;
     }
 
@@ -99,7 +120,7 @@ const Login = () => {
           { otp: otp }
         );
 
-        console.log(response);
+        //console.log(response);
         setOtpVerified(true);
         setUserDetails((prev) => ({
           ...prev,
@@ -107,9 +128,11 @@ const Login = () => {
         }));
 
         toast.success("OTP verified");
+        setisLoading(false);
       } catch (error: any) {
         toast.error(error.response.data.message);
-        console.log(error);
+        //console.log(error);
+        setisLoading(false);
       }
 
       return;
@@ -122,19 +145,25 @@ const Login = () => {
           { email: userDetails.email }
         );
 
-        console.log(response);
+        //console.log(response);
         setOtpReceived(true);
         toast.success("OTP sent successfully");
+        setisLoading(false);
       } catch (error: any) {
         toast.error(error.message);
-        console.log(error);
+        //console.log(error);
+        setisLoading(false);
       }
 
       return;
     }
 
     if (!passwordRegex.test(userDetails.password)) {
-      console.log("password is not a valid password", userDetails.password);
+      //console.log("password is not a valid password", userDetails.password);
+      toast.error("Password is not a valid password");
+
+      setisLoading(false);
+
       return;
     }
 
@@ -143,17 +172,26 @@ const Login = () => {
         `${import.meta.env.VITE_BASE_URL}/user/login-user`,
         { userDetails }
       );
-      console.log(response);
+      setisLoading(false);
 
       navigate("/home");
 
       localStorage.setItem("token", response.data.token);
+      //console.log();
+      localStorage.setItem(
+        "exp",
+        jwtDecode<JWTPayload>(localStorage.getItem("token")!).exp
+      );
 
       const { name } = jwtDecode<JWTPayload>(localStorage.getItem("token")!);
 
       toast.success(`Hello ${name}`);
     } catch (error: any) {
-      console.log(error.response.data.error);
+      setisLoading(false);
+
+      toast.error(error.response.data.error);
+
+      //console.log(error.response.data.error);
 
       if (error.response.data.error === "User is not verified") {
         setIsVerified(false);
@@ -168,12 +206,15 @@ const Login = () => {
         { email: userDetails.email }
       );
 
-      console.log(response.data);
-      toast.success("Verification mail sent");
+      //console.log(response.data);
+      setIsVerified(true);
+      toast.success(response.data);
 
-      setIsVerified(false);
+      // setIsVerified(false);
     } catch (error) {
-      console.log(error);
+      toast.success("Something went wrong");
+      //console.log(error);
+      setIsVerified(true);
     }
   };
 
@@ -182,21 +223,25 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async (e) => {
-    console.log(e);
+    //console.log(e.data);
 
-    interface DecodedData {
-      name: string;
-      email: string;
-    }
+    // return;
 
-    const decodedData: DecodedData = jwtDecode(e.credential);
+    // interface data {
+    //   name: string;
+    //   email: string;
+    // }
+
+    // const decodedData: DecodedData = jwtDecode(e.credential);
 
     const newUser = {
-      email: decodedData.email,
-      name: decodedData.name,
+      email: e.data.email,
+      name: e.data.name,
       password: "Qwerty!123",
       isAutogenerated: true,
     };
+
+    //console.log(newUser);
 
     try {
       const response = await axios.post(
@@ -204,9 +249,16 @@ const Login = () => {
         { userDetails: newUser }
       );
 
-      console.log(response);
+      //console.log(response);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem(
+        "exp",
+        jwtDecode<JWTPayload>(localStorage.getItem("token")!).exp
+      );
+      navigate("/home");
+      toast.success("Logged in with Google");
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 
@@ -218,40 +270,69 @@ const Login = () => {
       isAutogenerated: true,
     };
 
-    console.log(newUser);
+    //console.log(newUser);
 
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/user/register-user`,
         { userDetails: newUser }
       );
-
-      console.log(response);
+      //console.log(response);
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem(
+        "exp",
+        jwtDecode<JWTPayload>(localStorage.getItem("token")!).exp
+      );
+      navigate("/home");
+      toast.success("Logged in with Facebook");
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 
   return (
     <div className="login-container">
-      <h2>Login</h2>
+      <h1>{isRestPassword ? "Reset Password" : "LOGIN"}</h1>
 
-      {!isRestPassword && <GoogleLogin onSuccess={handleGoogleLogin} />}
+      {!isRestPassword && (
+        <LoginSocialGoogle
+          client_id={
+            "184096121816-mfg6hcepv5dh7lbc8uo5gup09e45mjfk.apps.googleusercontent.com"
+          }
+          // onLoginStart={onLoginStart}
+          onResolve={(data) => {
+            handleGoogleLogin(data);
+            // //console.log(data);
+          }}
+          onReject={(err) => {
+            toast.error("Something went wrong");
+          }}
+        >
+          <GoogleLoginButton className="btn">
+            Continue With Google
+          </GoogleLoginButton>
+        </LoginSocialGoogle>
+      )}
+      {/* {!isRestPassword && <GoogleLogin onSuccess={handleGoogleLogin} />} */}
 
       {!isRestPassword && (
         <LoginSocialFacebook
           appId="1086880865723734"
           onResolve={handleFaceBookLogin}
           onReject={(e) => {
-            console.log(e);
+            //console.log(e);
           }}
         >
-          <FacebookLoginButton />
+          <FacebookLoginButton className="btn">
+            Continue With Facebook
+          </FacebookLoginButton>
         </LoginSocialFacebook>
       )}
 
-      <div>
+      {/* <div className="inputCont"> */}
+      {!otpReceived && (
         <input
+          style={{ width: "100%" }}
           className="input-field"
           placeholder="Email"
           type="email"
@@ -259,59 +340,119 @@ const Login = () => {
           value={userDetails.email}
           onChange={handleInput}
         />
-        {!otpVerifed && (
-          <input
-            className={!isRestPassword ? "hide" : "input-field"}
-            placeholder="OTP"
-            type="text"
-            name="otp"
-            value={otp}
-            onChange={(e) => {
-              setOtp(e.target.value);
-            }}
-          />
-        )}
+      )}
+      {otpReceived && !otpVerifed && (
         <input
+          style={{ width: "100%" }}
+          className={!isRestPassword ? "hide" : "input-field"}
+          placeholder="OTP"
+          type="text"
+          name="otp"
+          value={otp}
+          onChange={(e) => {
+            setOtp(e.target.value);
+          }}
+        />
+      )}
+
+      <div style={{ position: "relative" }}>
+        <input
+          style={{ width: "100%" }}
           className={isRestPassword && !otpVerifed ? "hide" : "input-field"}
           placeholder="Password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           name="password"
           value={userDetails.password}
           onChange={handleInput}
         />
+        <button
+          className={isRestPassword && !otpVerifed ? "hide" : ""}
+          style={{
+            position: "absolute",
+            right: "0",
+            width: "50px",
+            height: "100%",
+            outline: "none",
+            border: "none",
+            cursor: "pointer",
+            background: "transparent",
+          }}
+          onClick={() => {
+            setshowPassword(!showPassword);
+          }}
+        >
+          {showPassword ? "HIDE" : "SHOW"}
+        </button>
       </div>
-      <button
-        onClick={handleLogin}
-        className={!otpVerifed ? "login-button" : "hide"}
-      >
-        {!otpReceived && isRestPassword
-          ? "Get OTP"
-          : otpReceived && isRestPassword
-          ? "Verify OTP"
-          : "LOGIN"}
-      </button>
+      {/* </div> */}
+      {!isLoading && (
+        <button
+          onClick={handleLogin}
+          className={!otpVerifed ? "login-button" : "hide"}
+        >
+          {!otpReceived && isRestPassword
+            ? "Get OTP"
+            : otpReceived && isRestPassword
+            ? "Verify OTP"
+            : "LOGIN"}
+        </button>
+      )}
+      {isLoading && (
+        <button className={!otpVerifed ? "login-button" : "hide"}>
+          <span className="loader"></span>
+        </button>
+      )}
 
       <button
         onClick={handleResetPassword}
         className={otpVerifed ? "login-button" : "hide"}
       >
-        Reset Password
+        {!isLoading ? "Reset Password" : <span className="loader"></span>}
       </button>
 
       {!isVerifed && (
-        <div onClick={getVerificationMail}>
+        <button onClick={getVerificationMail}>
           Click here to get an email to verify your account
-        </div>
+        </button>
       )}
 
       <p className={isRestPassword ? "hide" : ""}>
-        Forgot Password? <span onClick={resetPassword}>Reset</span>{" "}
+        Forgot Password?{" "}
+        <span
+          style={{ borderBottom: "1px solid white", cursor: "pointer" }}
+          onClick={resetPassword}
+        >
+          Reset
+        </span>{" "}
+      </p>
+
+      <span>OR</span>
+
+      <p className={!isRestPassword ? "hide" : ""}>
+        Go back and{" "}
+        <span
+          style={{
+            fontWeight: "500",
+            borderBottom: "1px solid red",
+            cursor: "pointer",
+          }}
+          onClick={() => {
+            setisRestPassword(false);
+          }}
+        >
+          Login
+        </span>{" "}
       </p>
 
       <p className={isRestPassword ? "hide" : ""}>
         Don't have an account{" "}
         <span>
-          <Link to="/signup">Signup</Link>
+          <Link
+            style={{ borderBottom: "1px solid white", color: "white" }}
+            to="/signup"
+          >
+            Signup
+          </Link>
         </span>{" "}
       </p>
     </div>

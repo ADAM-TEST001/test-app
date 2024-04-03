@@ -17,10 +17,12 @@ const Home = () => {
     jwtDecode(localStorage.getItem("token")!)
   );
 
+  const [isLoading, setisLoading] = useState(false);
   const navigate = useNavigate();
 
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.clear();
+    toast.success("User logged out");
     navigate("/");
   };
 
@@ -41,7 +43,7 @@ const Home = () => {
   };
 
   const handleUpdate = async () => {
-    const BASE_URL = process.env.REACT_APP_BASE_URL;
+    // const import.meta.env.VITE_BASE_URL = process.env.REACT_APP_BASE_URL;
 
     if (toUpdate === "username") {
       if (!updatedUserDetails.name) {
@@ -60,19 +62,22 @@ const Home = () => {
       const header = {
         Authorization: "Bearer " + localStorage.getItem("token"),
       };
-
+      setisLoading(true);
       try {
         const response = await axios.put(
-          `${BASE_URL}/user/updateDetails`,
+          `${import.meta.env.VITE_BASE_URL}/user/updateDetails`,
           payload,
           { headers: header }
         );
 
         toast.success("Username updated successfully");
         setToupdate("");
-        console.log(response);
+        setisLoading(false);
+        //console.log(response);
       } catch (error) {
-        console.log(error);
+        setisLoading(false);
+        toast.error("Something went wrong");
+        //console.log(error);
       }
     } else {
       if (!passwordRegex.test(updatedUserDetails.password)) {
@@ -93,17 +98,23 @@ const Home = () => {
         Authorization: "Bearer " + localStorage.getItem("token"),
       };
 
+      setisLoading(true);
+
       try {
         const response = await axios.put(
-          `${BASE_URL}/user/updateDetails`,
+          `${import.meta.env.VITE_BASE_URL}/user/updateDetails`,
           payload,
           { headers: header }
         );
         toast.success("Password updated successfully");
+        setisLoading(false);
 
-        console.log(response);
+        //console.log(response);
       } catch (error) {
-        console.log(error);
+        setisLoading(false);
+        toast.error("Something went wrong");
+
+        //console.log(error);
       }
     }
   };
@@ -115,33 +126,94 @@ const Home = () => {
   }, [toUpdate]);
 
   const getuser = async () => {
-    const BASE_URL = process.env.REACT_APP_BASE_URL;
+    // const import.meta.env.VITE_BASE_URL = process.env.REACT_APP_BASE_URL;
 
     try {
-      const response = await axios.post(`${BASE_URL}/user/userByEmail`, {
-        email: userDetails.email,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/user/userByEmail`,
+        {
+          email: userDetails.email,
+        }
+      );
 
       setUserDetails((prev) => ({
         ...prev,
         name: response.data.name,
       }));
-      console.log(response.data);
+      //console.log(response.data);
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 
   return (
     <main className="main">
       <nav className="navbar">
-        <span>HELLO {userDetails.name}</span>
+        <span>Welcome</span>
         <button className="logout" onClick={logout}>
           LOGOUT
         </button>
       </nav>
+      <div className="mainCont">
+        <div className="card">
+          <div>
+            <p style={{ fontSize: "20px" }}>Name : {userDetails.name}</p>{" "}
+            <p style={{ fontSize: "20px" }}>Email : {userDetails.email}</p>
+          </div>
 
-      <div className="mainContainer">
+          <div style={{ display: "flex", columnGap: "2rem" }}>
+            <button
+              className="updateBtn"
+              onClick={() => {
+                setToupdate("username");
+              }}
+            >
+              Update Name
+            </button>
+            <button
+              className="updateBtn"
+              onClick={() => {
+                setToupdate("password");
+              }}
+            >
+              Update Password
+            </button>
+          </div>
+
+          {toUpdate === "username" && (
+            <input
+              className="input-field"
+              placeholder="Update Username "
+              type="name"
+              name="name"
+              value={updatedUserDetails.name}
+              onChange={handleInput}
+            />
+          )}
+          {toUpdate === "password" && (
+            <input
+              className="input-field"
+              placeholder="Updated Password"
+              type="password"
+              name="password"
+              value={updatedUserDetails.password}
+              onChange={handleInput}
+            />
+          )}
+
+          {toUpdate && (
+            <button
+              disabled={isLoading}
+              onClick={handleUpdate}
+              className="updateBtn"
+            >
+              {!isLoading ? "Update" : <span className="loader"></span>}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* <div className="mainContainer">
         <select
           value={toUpdate}
           onChange={(e) => {
@@ -154,38 +226,7 @@ const Home = () => {
           <option value="password">Update Password</option>
           <option value="username">Update Username</option>
         </select>
-
-        <div className="editPannel">
-          {toUpdate === "username" && (
-            <div>
-              <input
-                placeholder="Update Username "
-                type="name"
-                name="name"
-                value={updatedUserDetails.name}
-                onChange={handleInput}
-              />
-            </div>
-          )}
-          {toUpdate === "password" && (
-            <div>
-              <input
-                placeholder="Updated Password"
-                type="password"
-                name="password"
-                value={updatedUserDetails.password}
-                onChange={handleInput}
-              />
-            </div>
-          )}
-
-          {toUpdate && (
-            <button onClick={handleUpdate} className="updateBtn">
-              Update
-            </button>
-          )}
-        </div>
-      </div>
+      </div> */}
     </main>
   );
 };
