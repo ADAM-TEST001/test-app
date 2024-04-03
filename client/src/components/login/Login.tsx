@@ -294,7 +294,7 @@ const Login = () => {
     <div className="login-container">
       <h1>{isRestPassword ? "Reset Password" : "LOGIN"}</h1>
 
-      {/* {!isRestPassword && (
+      {!isRestPassword && (
         <LoginSocialGoogle
           client_id={
             "184096121816-mfg6hcepv5dh7lbc8uo5gup09e45mjfk.apps.googleusercontent.com"
@@ -312,8 +312,13 @@ const Login = () => {
             Continue With Google
           </GoogleLoginButton>
         </LoginSocialGoogle>
-      )} */}
-      {!isRestPassword && <GoogleLogin onSuccess={handleGoogleLogin} />}
+      )}
+
+      {!isRestPassword && (
+        <div>
+          <GoogleLogin onSuccess={handleGoogleLogin} />
+        </div>
+      )}
 
       {!isRestPassword && (
         <LoginSocialFacebook
