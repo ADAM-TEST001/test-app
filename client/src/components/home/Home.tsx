@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-
-import "./Home.css";
 import { useNavigate } from "react-router-dom";
-import { emailRegex, passwordRegex } from "../../utils/Regex";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { RiEdit2Line } from "react-icons/ri";
+
+import "./Home.css";
 
 interface User {
   email: string;
@@ -16,8 +16,11 @@ const Home = () => {
   const [userDetails, setUserDetails] = useState<User>(
     jwtDecode(localStorage.getItem("token")!)
   );
+  const [isLoading, setIsLoading] = useState(false);
+  const [toUpdate, setToUpdate] = useState<string | null>(null);
+  const [updatedValue, setUpdatedValue] = useState("");
+  const [passwordUpdate, setPasswordUpdate] = useState("");
 
-  const [isLoading, setisLoading] = useState(false);
   const navigate = useNavigate();
 
   const logout = () => {
@@ -26,123 +29,49 @@ const Home = () => {
     navigate("/");
   };
 
-  const [updatedUserDetails, setUpdatedUserDetails] = useState({
-    name: "",
-    password: "",
-  });
-
-  const [toUpdate, setToupdate] = useState("");
-
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    setUpdatedUserDetails((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   const handleUpdate = async () => {
-    // const import.meta.env.VITE_BASE_URL = process.env.REACT_APP_BASE_URL;
-
-    if (toUpdate === "username") {
-      if (!updatedUserDetails.name) {
-        toast.error("Username is empty");
-        return;
-      }
-
-      const payload = {
-        updateType: toUpdate,
-        userDetails: {
-          email: userDetails.email,
-          name: updatedUserDetails.name,
-        },
-      };
-
-      const header = {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      };
-      setisLoading(true);
-      try {
-        const response = await axios.put(
-          `${import.meta.env.VITE_BASE_URL}/user/updateDetails`,
-          payload,
-          { headers: header }
-        );
-
-        toast.success("Username updated successfully");
-        setToupdate("");
-        setisLoading(false);
-        //console.log(response);
-      } catch (error) {
-        setisLoading(false);
-        toast.error("Something went wrong");
-        //console.log(error);
-      }
-    } else {
-      if (!passwordRegex.test(updatedUserDetails.password)) {
-        toast.error("Weak Password");
-
-        return;
-      }
-
-      const payload = {
-        updateType: toUpdate,
-        userDetails: {
-          email: userDetails.email,
-          password: updatedUserDetails.password,
-        },
-      };
-
-      const header = {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      };
-
-      setisLoading(true);
-
-      try {
-        const response = await axios.put(
-          `${import.meta.env.VITE_BASE_URL}/user/updateDetails`,
-          payload,
-          { headers: header }
-        );
-        toast.success("Password updated successfully");
-        setisLoading(false);
-
-        //console.log(response);
-      } catch (error) {
-        setisLoading(false);
-        toast.error("Something went wrong");
-
-        //console.log(error);
-      }
+    if (toUpdate === "name" && !updatedValue.trim()) {
+      toast.error("Username cannot be empty");
+      return;
     }
-  };
 
-  useEffect(() => {
-    if (toUpdate === "") {
-      getuser();
+    if (toUpdate === "password" && !passwordUpdate.trim()) {
+      toast.error("Password cannot be empty");
+      return;
     }
-  }, [toUpdate]);
 
-  const getuser = async () => {
-    // const import.meta.env.VITE_BASE_URL = process.env.REACT_APP_BASE_URL;
+    setIsLoading(true);
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/user/userByEmail`,
-        {
+      const payload = {
+        updateType: toUpdate!,
+        userDetails: {
           email: userDetails.email,
-        }
+          [toUpdate === "name" ? "name" : "password"]:
+            toUpdate === "name" ? updatedValue.trim() : passwordUpdate.trim(),
+        },
+      };
+
+      const header = {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      };
+
+      await axios.put(
+        `${import.meta.env.VITE_BASE_URL}/user/updateDetails`,
+        payload,
+        { headers: header }
       );
 
-      setUserDetails((prev) => ({
-        ...prev,
-        name: response.data.name,
-      }));
-      //console.log(response.data);
+      toast.success(
+        `${toUpdate === "name" ? "Username" : "Password"} updated successfully`
+      );
+      setIsLoading(false);
+      setToUpdate(null);
+      setUpdatedValue("");
+      setPasswordUpdate("");
     } catch (error) {
-      //console.log(error);
+      setIsLoading(false);
+      toast.error("Something went wrong");
     }
   };
 
@@ -156,77 +85,57 @@ const Home = () => {
       </nav>
       <div className="mainCont">
         <div className="card">
-          <div>
-            <p style={{ fontSize: "20px" }}>Name : {userDetails.name}</p>{" "}
-            <p style={{ fontSize: "20px" }}>Email : {userDetails.email}</p>
+          <div className="userDetails">
+            <p>
+              Name:{" "}
+              {toUpdate === "name" ? (
+                <>
+                  <input
+                    type="text"
+                    value={updatedValue}
+                    onChange={(e) => setUpdatedValue(e.target.value)}
+                    autoFocus
+                  />
+                  <button onClick={handleUpdate}>Save</button>
+                </>
+              ) : (
+                <>
+                  {userDetails.name}
+                  <RiEdit2Line
+                    onClick={() => setToUpdate("name")}
+                    className="editIcon"
+                  />
+                </>
+              )}
+            </p>
+            <p>Email: {userDetails.email}</p>
           </div>
-
-          <div style={{ display: "flex", columnGap: "2rem" }}>
-            <button
-              className="updateBtn"
-              onClick={() => {
-                setToupdate("username");
-              }}
-            >
-              Update Name
-            </button>
-            <button
-              className="updateBtn"
-              onClick={() => {
-                setToupdate("password");
-              }}
-            >
-              Update Password
-            </button>
+          <div className="userDetails">
+            <p>
+              Password:{" "}
+              {toUpdate === "password" ? (
+                <>
+                  <input
+                    type="password"
+                    value={passwordUpdate}
+                    onChange={(e) => setPasswordUpdate(e.target.value)}
+                    autoFocus
+                  />
+                  <button onClick={handleUpdate}>Save</button>
+                </>
+              ) : (
+                <>
+                  ********
+                  <RiEdit2Line
+                    onClick={() => setToUpdate("password")}
+                    className="editIcon"
+                  />
+                </>
+              )}
+            </p>
           </div>
-
-          {toUpdate === "username" && (
-            <input
-              className="input-field"
-              placeholder="Update Username "
-              type="name"
-              name="name"
-              value={updatedUserDetails.name}
-              onChange={handleInput}
-            />
-          )}
-          {toUpdate === "password" && (
-            <input
-              className="input-field"
-              placeholder="Updated Password"
-              type="password"
-              name="password"
-              value={updatedUserDetails.password}
-              onChange={handleInput}
-            />
-          )}
-
-          {toUpdate && (
-            <button
-              disabled={isLoading}
-              onClick={handleUpdate}
-              className="updateBtn"
-            >
-              {!isLoading ? "Update" : <span className="loader"></span>}
-            </button>
-          )}
         </div>
       </div>
-
-      {/* <div className="mainContainer">
-        <select
-          value={toUpdate}
-          onChange={(e) => {
-            setToupdate(e.target.value);
-          }}
-        >
-          <option value="" disabled selected>
-            What to update ????
-          </option>
-          <option value="password">Update Password</option>
-          <option value="username">Update Username</option>
-        </select>
-      </div> */}
     </main>
   );
 };

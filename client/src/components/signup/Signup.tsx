@@ -4,6 +4,7 @@ import { emailRegex, passwordRegex } from "../../utils/Regex";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { motion } from "framer-motion";
 
 const Signup = () => {
   useEffect(() => {
@@ -98,76 +99,93 @@ const Signup = () => {
   const [showPassword, setshowPassword] = useState(false);
 
   return (
-    <div className="login-container">
-      <h2>Signup</h2>
-      {/* <div> */}
-      <input
-        style={{ width: "100%" }}
-        className="input-field"
-        placeholder="Name"
-        type="text"
-        name="name"
-        value={userDetails.name}
-        onChange={handleInput}
-      />
-      {/* {errors.name && <p className="error-message">Name is required</p>} */}
-      <input
-        style={{ width: "100%" }}
-        className="input-field"
-        placeholder="Email"
-        type="email"
-        name="email"
-        value={userDetails.email}
-        onChange={handleInput}
-      />
-      {/* {errors.email && <p className="error-message">Invalid email</p>} */}
-      <div style={{ position: "relative" }}>
-        <input
-          style={{ width: "100%" }}
-          className="input-field"
-          placeholder="Password"
-          type={showPassword ? "text" : "password"}
-          name="password"
-          value={userDetails.password}
-          onChange={handleInput}
-        />
-        <button
-          style={{
-            position: "absolute",
-            right: "0",
-            width: "50px",
-            height: "100%",
-            outline: "none",
-            border: "none",
-            cursor: "pointer",
-            background: "transparent",
-          }}
-          onClick={() => {
-            setshowPassword(!showPassword);
-          }}
-        >
-          {showPassword ? "HIDE" : "SHOW"}
-        </button>
-      </div>
-      {/* {errors.password && (
+    <motion.div
+      initial={{ opacity: 0, y: -50 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -50 }}
+      transition={{
+        type: "spring",
+        stiffness: 200,
+        damping: 20,
+        duration: 0.5,
+      }}
+      className="cont"
+    >
+      <div className="login-container">
+        <h1>SIGN UP...</h1>
+        {/* <div> */}
+        <div className="formInput">
+          <input
+            style={{ width: "100%" }}
+            className="input-field"
+            placeholder="Name"
+            type="text"
+            name="name"
+            value={userDetails.name}
+            onChange={handleInput}
+          />
+        </div>
+        {/* {errors.name && <p className="error-message">Name is required</p>} */}
+        <div className="formInput">
+          <input
+            style={{ width: "100%" }}
+            className="input-field"
+            placeholder="Email"
+            type="email"
+            name="email"
+            value={userDetails.email}
+            onChange={handleInput}
+          />
+        </div>
+        {/* {errors.email && <p className="error-message">Invalid email</p>} */}
+        <div className="formInput" style={{ position: "relative" }}>
+          <input
+            style={{ width: "100%" }}
+            className="input-field"
+            placeholder="Password"
+            type={showPassword ? "text" : "password"}
+            name="password"
+            value={userDetails.password}
+            onChange={handleInput}
+          />
+          <button
+            style={{
+              position: "absolute",
+              top: "25%",
+              right: "12px",
+              width: "50px",
+              height: "50%",
+              outline: "none",
+              border: "none",
+              cursor: "pointer",
+              background: "white",
+            }}
+            onClick={() => {
+              setshowPassword(!showPassword);
+            }}
+          >
+            {showPassword ? "HIDE" : "SHOW"}
+          </button>
+        </div>
+        {/* {errors.password && (
         <p className="error-message">
           Password must be at least 8 characters long and contain at least one
           uppercase letter, one lowercase letter, and one number
         </p>
       )} */}
-      {/* </div> */}
-      <div className="btn-container">
-        <button onClick={handleSignup}>
-          {!isLoading ? "Signup" : <span className="loader"></span>}
+        {/* </div> */}
+
+        <button className="login-button" onClick={handleSignup}>
+          {!isLoading ? "SIGN UP" : <span className="loader"></span>}
         </button>
+        <p>
+          Already have an account{" "}
+          <span>
+            <Link to="/">Login</Link>
+          </span>
+        </p>
       </div>
-      <p>
-        Already have an account{" "}
-        <span>
-          <Link to="/">Login</Link>
-        </span>
-      </p>
-    </div>
+    </motion.div>
   );
 };
 

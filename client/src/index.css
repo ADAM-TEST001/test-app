@@ -1,6 +1,7 @@
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
+  font-family: "Poppins", sans-serif;
   font-weight: 400;
 
   /* color-scheme: light dark; */
@@ -10,12 +11,13 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
 }
 
 .loader {
   width: 2rem;
   height: 2rem;
-  border: 5px solid #fff;
+  border: 5px solid #4b4b4b;
   border-bottom-color: transparent;
   border-radius: 50%;
   display: inline-block;
@@ -30,4 +32,9 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+a {
+  text-decoration: underline;
+  color: black;
 }

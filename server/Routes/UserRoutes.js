@@ -38,7 +38,7 @@ router.post("/register-user", async (req, res) => {
 
 
                 // Generate JWT token with expiration time
-                const token = jwt.sign(payload, process.env.SECRET, { expiresIn: "1m" });
+                const token = jwt.sign(payload, process.env.SECRET, { expiresIn: "24hr" });
 
                 return res.status(200).json({ message: "Logging in with GOOGLE", token })
             }
