@@ -429,6 +429,7 @@ const Login = () => {
               outline: "none",
               border: "none",
               cursor: "pointer",
+              color: "black",
               background: "white",
             }}
             onClick={() => {
