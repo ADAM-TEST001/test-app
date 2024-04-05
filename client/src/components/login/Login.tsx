@@ -377,7 +377,7 @@ const Login = () => {
             </LoginSocialFacebook>
           )}
         </div>
-        <span>OR</span>
+        {!resetPassword && <span>OR</span>}
 
         {!otpReceived && (
           <div className="formInput">
@@ -480,7 +480,7 @@ const Login = () => {
           </span>{" "}
         </p>
 
-        <span>OR</span>
+        {!resetPassword && <span>OR</span>}
 
         <p className={!isRestPassword ? "hide" : ""}>
           Go back and{" "}
