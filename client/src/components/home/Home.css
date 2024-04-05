@@ -1,22 +1,30 @@
 .main {
-  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* margin-top: 50px; */
+  /* font-weight: 700;
+  font-size: 20px; */
 }
 
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  width: 100%;
+  /* padding: 10px; */
   background-color: #333;
   color: #fff;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .logout {
-  padding: 0.5rem 1rem;
-  background-color: #ff5722;
-  border: none;
-  border-radius: 5px;
+  background-color: #ff4500;
   color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
@@ -24,44 +32,58 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 60px);
+  margin-top: 20px;
+  height: 50vh;
 }
 
 .card {
-  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  background-color: #f0f0f0;
+  min-width: 450px;
+  min-height: 200px;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  /* background-color: #353535; */
-  width: 40vw;
-  display: flex;
-  flex-direction: column;
-  row-gap: 1rem;
+  padding: 20px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
 }
 
-.editPannel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 1rem;
+.userDetails {
+  margin-bottom: 10px;
 }
 
-.updateBtn {
-  /* width: 100%; */
-
-  padding: 10px;
-  border-radius: 5px;
-  border: none;
-  background-color: #007bff;
-  box-shadow: rgba(0, 0, 0, 0.5) 0px 1px 2px;
-  color: #fff;
+.editIcon {
+  margin-left: 10px;
   cursor: pointer;
-  height: 50px;
-  transition: all 0.5s;
-
-  width: 100%;
 }
 
-.updateBtn:hover {
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  /* width: 100%; */
+  padding-inline: 1rem !important;
+  box-sizing: border-box;
+  /* border-radius: 2rem; */
+  transition: 0.5s all;
+  border: 0 solid gray;
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+}
+
+input:focus {
+  outline: 0;
+}
+
+button {
+  margin-left: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
   background-color: #0056b3;
 }

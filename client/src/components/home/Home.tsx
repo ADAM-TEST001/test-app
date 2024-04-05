@@ -19,7 +19,8 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [toUpdate, setToUpdate] = useState<string | null>(null);
   const [updatedValue, setUpdatedValue] = useState("");
-  const [passwordUpdate, setPasswordUpdate] = useState("");
+  const [originalName, setOriginalName] = useState("");
+  const [originalPassword, setOriginalPassword] = useState("");
 
   const navigate = useNavigate();
 
@@ -30,13 +31,11 @@ const Home = () => {
   };
 
   const handleUpdate = async () => {
-    if (toUpdate === "name" && !updatedValue.trim()) {
-      toast.error("Username cannot be empty");
-      return;
-    }
-
-    if (toUpdate === "password" && !passwordUpdate.trim()) {
-      toast.error("Password cannot be empty");
+    if (
+      (toUpdate === "name" && !updatedValue.trim()) ||
+      (toUpdate === "password" && !updatedValue.trim())
+    ) {
+      toast.error("Field cannot be empty");
       return;
     }
 
@@ -47,8 +46,7 @@ const Home = () => {
         updateType: toUpdate!,
         userDetails: {
           email: userDetails.email,
-          [toUpdate === "name" ? "name" : "password"]:
-            toUpdate === "name" ? updatedValue.trim() : passwordUpdate.trim(),
+          [toUpdate === "name" ? "name" : "password"]: updatedValue.trim(),
         },
       };
 
@@ -63,16 +61,44 @@ const Home = () => {
       );
 
       toast.success(
-        `${toUpdate === "name" ? "Username" : "Password"} updated successfully`
+        `${toUpdate === "name" ? "Name" : "Password"} updated successfully`
       );
+
+      // Automatically update the username or email
+      if (toUpdate === "name") {
+        await getUser();
+      }
+
       setIsLoading(false);
       setToUpdate(null);
       setUpdatedValue("");
-      setPasswordUpdate("");
     } catch (error) {
       setIsLoading(false);
       toast.error("Something went wrong");
     }
+  };
+
+  const getUser = async () => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/user/userByEmail`,
+        {
+          email: userDetails.email,
+        }
+      );
+
+      setUserDetails((prev) => ({
+        ...prev,
+        name: response.data.name,
+      }));
+    } catch (error) {
+      toast.error("Failed to update details");
+    }
+  };
+
+  const handleCancel = () => {
+    setToUpdate(null);
+    setUpdatedValue("");
   };
 
   return (
@@ -86,7 +112,7 @@ const Home = () => {
       <div className="mainCont">
         <div className="card">
           <div className="userDetails">
-            <p>
+            <p style={{ display: "flex", alignItems: "center" }}>
               Name:{" "}
               {toUpdate === "name" ? (
                 <>
@@ -95,39 +121,60 @@ const Home = () => {
                     value={updatedValue}
                     onChange={(e) => setUpdatedValue(e.target.value)}
                     autoFocus
+                    disabled={isLoading}
                   />
-                  <button onClick={handleUpdate}>Save</button>
+                  {isLoading ? (
+                    <span className="loader"></span>
+                  ) : (
+                    <>
+                      <button onClick={handleUpdate}>Save</button>
+                      <button onClick={handleCancel}>Cancel</button>
+                    </>
+                  )}
                 </>
               ) : (
                 <>
                   {userDetails.name}
                   <RiEdit2Line
-                    onClick={() => setToUpdate("name")}
+                    onClick={() => {
+                      setOriginalName(userDetails.name);
+                      setToUpdate("name");
+                    }}
                     className="editIcon"
                   />
                 </>
               )}
             </p>
-            <p>Email: {userDetails.email}</p>
           </div>
           <div className="userDetails">
-            <p>
+            <p style={{ display: "flex", alignItems: "center" }}>
               Password:{" "}
               {toUpdate === "password" ? (
                 <>
                   <input
                     type="password"
-                    value={passwordUpdate}
-                    onChange={(e) => setPasswordUpdate(e.target.value)}
+                    value={updatedValue}
+                    onChange={(e) => setUpdatedValue(e.target.value)}
                     autoFocus
+                    disabled={isLoading}
                   />
-                  <button onClick={handleUpdate}>Save</button>
+                  {isLoading ? (
+                    <span className="loader"></span>
+                  ) : (
+                    <>
+                      <button onClick={handleUpdate}>Save</button>
+                      <button onClick={handleCancel}>Cancel</button>
+                    </>
+                  )}
                 </>
               ) : (
                 <>
                   ********
                   <RiEdit2Line
-                    onClick={() => setToUpdate("password")}
+                    onClick={() => {
+                      setOriginalPassword("********");
+                      setToUpdate("password");
+                    }}
                     className="editIcon"
                   />
                 </>

@@ -256,7 +256,7 @@ router.put("/updateDetails", JWT_AUTH, async (req, res) => {
 
     try {
 
-        //console.log(req.body);
+        console.log(req.body);
         const { updateType, userDetails } = req.body
 
         if (updateType === "password") {
@@ -271,7 +271,7 @@ router.put("/updateDetails", JWT_AUTH, async (req, res) => {
             return res.status(200).json({ success: "Password updated" })
 
         }
-        if (updateType === "username") {
+        if (updateType === "name") {
 
 
 
