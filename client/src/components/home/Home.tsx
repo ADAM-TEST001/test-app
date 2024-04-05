@@ -6,6 +6,7 @@ import axios from "axios";
 import { RiEdit2Line } from "react-icons/ri";
 
 import "./Home.css";
+import { passwordRegex } from "../../utils/Regex";
 
 interface User {
   email: string;
@@ -38,7 +39,13 @@ const Home = () => {
       toast.error("Field cannot be empty");
       return;
     }
+    // console.log(passwordRegex.test(updatedValue.trim()));
 
+    if (!passwordRegex.test(updatedValue.trim()) && toUpdate === "password") {
+      toast.error(
+        "Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, and one digit."
+      );
+    }
     setIsLoading(true);
 
     try {
