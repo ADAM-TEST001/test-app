@@ -7,9 +7,7 @@ const transporter = nodemailer.createTransport({
         user: "test.adam011@gmail.com",
         pass: process.env.EMAIL_PASS,
     },
-    tls: {
-        rejectUnauthorized: false,
-    },
+ 
 });
 
 const generateToken = (length = 20) => {
