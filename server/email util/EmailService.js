@@ -36,7 +36,7 @@ const sendVerificationEmail = async (
             from: "test.adam011@gmail.com",
             to: recipientEmail,
             subject: "Password Reset Request",
-            text: `Your OTP is ${token} and  will expire in 2 minutes`,
+            html: `<p>Your OTP is <b>${token}</b> and  will expire in 2 minutes.<p>`,
         };
     } else if (type === "PasswordResetSuccess") {
         mailOptions = {
